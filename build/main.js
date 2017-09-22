@@ -13,7 +13,7 @@ var mass = 4;
 var k = 2;
 var pointSprings = [];
 points.forEach(function (point) {
-    return pointSprings.push(new Spring(point, mass, k));
+    return pointSprings.push(new Spring(point, mass * (1 + Math.random()), k + (1 + Math.random()), Math.random() * .3 + .5));
 });
 
 var voronoi = d3.voronoi().extent([[-width, -height], [width * 2, height * 2]]);
@@ -73,6 +73,9 @@ function applyForceFromSource(spring, source, maxStrength) {
     spring.applyForce([fx, fy]);
 }
 
+//Sends a "wave" of force across the screen.  
+function sendWave() {}
+
 //Calculates Euclidiean distance between two points.
 function distance(a, b) {
     return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
@@ -106,7 +109,6 @@ function drawTriangles() {
         context.fillStyle = col;
         context.strokeStyle = col;
         context.stroke();
-        context.fill();
         context.closePath();
     });
 }

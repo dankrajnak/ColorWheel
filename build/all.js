@@ -88,7 +88,11 @@ var PoissonDisk = function () {
 
 var Spring = function () {
     //Creates a spring based on Hooke's Law.
-    function Spring(base, mass, k) {
+    function Spring(base) {
+        var mass = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 4;
+        var k = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
+        var damping = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : .7;
+
         _classCallCheck(this, Spring);
 
         this._appliedForce = [0, 0];
@@ -99,6 +103,7 @@ var Spring = function () {
         this.base = base;
         this.mass = mass;
         this.k = k;
+        this.damping = damping;
     }
 
     _createClass(Spring, [{
@@ -117,8 +122,8 @@ var Spring = function () {
             this._appliedForce = [0, 0];
 
             //Using leapfrog integration.
-            this._velocity[0] += Spring.DAMPING * .5 * (this._previousAcceleration[0] + force[0] / this.mass);
-            this._velocity[1] += Spring.DAMPING * .5 * (this._previousAcceleration[1] + force[1] / this.mass);
+            this._velocity[0] += this.damping * .5 * (this._previousAcceleration[0] + force[0] / this.mass);
+            this._velocity[1] += this.damping * .5 * (this._previousAcceleration[1] + force[1] / this.mass);
 
             this._previousAcceleration = [force[0] / this.mass, force[1] / this.mass];
 
@@ -134,11 +139,6 @@ var Spring = function () {
             //        }
             //
             //        console.table(tableInfo);
-        }
-    }], [{
-        key: 'DAMPING',
-        get: function get() {
-            return .7;
         }
     }]);
 
@@ -158,7 +158,7 @@ var mass = 4;
 var k = 2;
 var pointSprings = [];
 points.forEach(function (point) {
-    return pointSprings.push(new Spring(point, mass, k));
+    return pointSprings.push(new Spring(point, mass * (1 + Math.random()), k + (1 + Math.random()), Math.random() * .3 + .5));
 });
 
 var voronoi = d3.voronoi().extent([[-width, -height], [width * 2, height * 2]]);
@@ -218,6 +218,9 @@ function applyForceFromSource(spring, source, maxStrength) {
     spring.applyForce([fx, fy]);
 }
 
+//Sends a "wave" of force across the screen.  
+function sendWave() {}
+
 //Calculates Euclidiean distance between two points.
 function distance(a, b) {
     return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
@@ -251,7 +254,6 @@ function drawTriangles() {
         context.fillStyle = col;
         context.strokeStyle = col;
         context.stroke();
-        context.fill();
         context.closePath();
     });
 }

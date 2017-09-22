@@ -1,6 +1,6 @@
 class Spring {
     //Creates a spring based on Hooke's Law.
-    constructor(base, mass, k) {
+    constructor(base, mass = 4, k = 2, damping = .7) {
         this._appliedForce = [0, 0];
         this._previousAcceleration = [0, 0];
         this._velocity = [0, 0];
@@ -9,14 +9,11 @@ class Spring {
         this.base = base;
         this.mass = mass;
         this.k = k;
+        this.damping = damping;
     }
 
     applyForce(force) {
         this._appliedForce = force;
-    }
-
-    static get DAMPING() {
-        return .7;
     }
 
     update() {
@@ -29,8 +26,8 @@ class Spring {
         this._appliedForce = [0, 0];
 
         //Using leapfrog integration.
-        this._velocity[0] += Spring.DAMPING * .5 * (this._previousAcceleration[0] + force[0] / this.mass);
-        this._velocity[1] += Spring.DAMPING * .5 * (this._previousAcceleration[1] + force[1] / this.mass);
+        this._velocity[0] += this.damping * .5 * (this._previousAcceleration[0] + force[0] / this.mass);
+        this._velocity[1] += this.damping * .5 * (this._previousAcceleration[1] + force[1] / this.mass);
 
         this._previousAcceleration = [force[0] / this.mass, force[1] / this.mass];
 
