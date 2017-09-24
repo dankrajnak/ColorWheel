@@ -6,7 +6,9 @@ var width = window.innerWidth,
 var diagonal = distance([0, 0], [width, height]);
 var mousePosition = [width / 2, height / 2];
 
-console.log(d3.hsl(50, 50, 50));
+//Resize logo
+d3.select('svg').attr('width', width / 3);
+
 /*  CREATE TRIANGLES AND SPRINGS  */
 var pointGenerator = new PoissonDisk(width, height, radius);
 var points = pointGenerator.generatePoints();
@@ -25,21 +27,23 @@ var triangles = voronoi.triangles(points);
 /***************************************************************************************************************/
 
 /*  DRAW TRIANGLES  */
-
+var container = d3.select('#container');
 var canvas = d3.select('body').append('canvas').attr('width', width).attr('height', height);
 var context = canvas.node().getContext('2d');
 
-var colorProfile = apteColorBlack;
+var colorProfile = apteColorWhite;
 
-canvas.on('click', function () {
+container.on('click', function () {
     if (colorProfile == apteColorBlack) {
+        d3.selectAll('svg path, svg polygon').style('fill', 'black').style('stroke', 'none');
         colorProfile = apteColorWhite;
     } else {
+        d3.selectAll('svg path, svg polygon').style('fill', 'white').style('stroke', 'none');
         colorProfile = apteColorBlack;
     }
 });
 
-canvas.on('mousemove', function () {
+container.on('mousemove', function () {
     mousePosition = d3.mouse(this);
     points.length = 0;
     pointSprings.forEach(function (spring) {
@@ -104,8 +108,7 @@ function apteColorWhite(point, center) {
 
     /*First line makes colors lighter the farther away they are from the center according to the easing function.
     Second line reduces the amount that colors far from the center of the canvas (NOT 'center') because the blue
-    on the outside of the canvas is lighter than the red towards the middle.
-    */
+    on the outside of the canvas is lighter than the red towards the middle.*/
     color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, [width / 2, height / 2]) / (diagonal / 2) / 6;
 
     return color;
