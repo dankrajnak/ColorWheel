@@ -61,13 +61,21 @@ function wheelColor(point, center) {
     return d3.lab(100 - (dx * dx + dy * dy) / 9000, dx / 5, dy / 5);
 }
 
-function apteColor(point, center) {
-
+function apteColorBlack(point, center) {
     const apteRed = d3.rgb(157, 29, 33);
     const apteBlue = d3.rgb(167, 191, 209);
     const colorIntepolator = d3.interpolateCubehelix(apteRed, apteBlue);
     let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
-    color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, center) / (diagonal/2)*4;
+    color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, center) / (diagonal / 2) * 4;
+    return color;
+}
+
+function apteColorWhite(point, center) {
+    const apteRed = d3.rgb(157, 29, 33);
+    const apteBlue = d3.rgb(167, 191, 209);
+    const colorIntepolator = d3.interpolateCubehelix(apteRed, apteBlue);
+    let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
+    color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, [width / 2, height / 2]) / (diagonal / 2) / 6;
     return color;
 }
 
@@ -115,7 +123,7 @@ function drawTriangles() {
         context.beginPath();
         context.moveTo(triangle[2][0], triangle[2][1]);
         triangle.forEach((vertex) => context.lineTo(vertex[0], vertex[1]));
-        var col = apteColor(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]);
+        var col = apteColorWhite(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]);
         context.strokeStyle = col.toString();
         col.opacity = .95;
         context.fillStyle = col.toString();
