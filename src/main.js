@@ -27,6 +27,15 @@ let triangles = voronoi.triangles(points);
 const canvas = d3.select('body').append('canvas').attr('width', width).attr('height', height);
 const context = canvas.node().getContext('2d');
 
+let colorProfile = apteColorBlack;
+
+canvas.on('click', () => {
+    if (colorProfile == apteColorBlack) {
+        colorProfile = apteColorWhite
+    } else {
+        colorProfile = apteColorBlack;
+    }
+})
 
 canvas.on('mousemove', function () {
     mousePosition = d3.mouse(this);
@@ -37,17 +46,17 @@ canvas.on('mousemove', function () {
         points.push(spring.position);
     });
     triangles = voronoi.triangles(points);
-    drawTriangles();
+    drawTriangles(colorProfile);
 });
 
-const timer = d3.interval(function (elapsed) {
+d3.interval(function (elapsed) {
     points.length = 0;
     pointSprings.forEach((spring) => {
         spring.update();
         points.push(spring.position);
     });
     triangles = voronoi.triangles(points);
-    drawTriangles();
+    drawTriangles(colorProfile);
 }, 40)
 
 /***************************************************************************************************************/
@@ -62,20 +71,42 @@ function wheelColor(point, center) {
 }
 
 function apteColorBlack(point, center) {
+    //Brand colors:
     const apteRed = d3.rgb(157, 29, 33);
     const apteBlue = d3.rgb(167, 191, 209);
+    
+    //Interpolate between the colors with gamma of 1.
     const colorIntepolator = d3.interpolateCubehelix(apteRed, apteBlue);
+
+    //Finds the color of a point within the color gradient and converts it to hsl.
     let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
+   
+    /*Color gets lighter the closer it is to the 'center'  This is a little complicated just to help the circle 
+    be a more uniform size with the lighter color being towards the edges of the canvas.  It could approximated
+    by -distance(point, center)/ (diagonal / 2) * 2.  */
     color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, center) / (diagonal / 2) * 4;
+    
     return color;
 }
 
 function apteColorWhite(point, center) {
+    //Brand colors:
     const apteRed = d3.rgb(157, 29, 33);
     const apteBlue = d3.rgb(167, 191, 209);
+    
+    //Interpolate between the colors with gamma of 1.
     const colorIntepolator = d3.interpolateCubehelix(apteRed, apteBlue);
+    
+    //Finds the color of a point within the color gradient and converts it to hsl.
     let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
-    color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, [width / 2, height / 2]) / (diagonal / 2) / 6;
+    
+    /*First line makes colors lighter the farther away they are from the center according to the easing function.
+    Second line reduces the amount that colors far from the center of the canvas (NOT 'center') because the blue
+    on the outside of the canvas is lighter than the red towards the middle.
+    */
+    color.l += d3.easeCircleOut(distance(point, center) / diagonal) 
+        - distance(point, [width / 2, height / 2]) / (diagonal / 2) / 6;
+    
     return color;
 }
 
@@ -115,7 +146,7 @@ function drawPointSprings() {
 }
 
 //Draws the triangles on the canvas.
-function drawTriangles() {
+function drawTriangles(colorProfile) {
     context.clearRect(0, 0, width, height);
     context.fillStyle = "#555";
     context.fillRect(0, 0, width, height)
@@ -123,7 +154,7 @@ function drawTriangles() {
         context.beginPath();
         context.moveTo(triangle[2][0], triangle[2][1]);
         triangle.forEach((vertex) => context.lineTo(vertex[0], vertex[1]));
-        var col = apteColorWhite(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]);
+        var col = colorProfile(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]);
         context.strokeStyle = col.toString();
         col.opacity = .95;
         context.fillStyle = col.toString();
