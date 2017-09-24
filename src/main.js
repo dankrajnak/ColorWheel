@@ -1,23 +1,29 @@
 const width = window.innerWidth,
     height = window.innerHeight,
     radius = 30;
+const diagonal = distance([0, 0], [width, height]);
 let mousePosition = [width / 2, height / 2];
 
-/********CREATE TRIANGLES AND SPRINGS********/
+
+console.log(d3.hsl(50, 50, 50))
+/*  CREATE TRIANGLES AND SPRINGS  */
 const pointGenerator = new PoissonDisk(width, height, radius);
 const points = pointGenerator.generatePoints();
 
 const mass = 4;
 const k = 2;
 let pointSprings = [];
-points.forEach((point) => pointSprings.push(new Spring(point, mass*(1+Math.random()), k+(1+Math.random()), Math.random() *.3 +.5)));
+points.forEach((point) => pointSprings.push(new Spring(point, mass * (1 + Math.random()), k + (1 + Math.random()), Math.random() * .3 + .5)));
 
 const voronoi = d3.voronoi()
-    .extent([[-width, -height], [width*2, height*2]]);
+    .extent([[-width, -height], [width * 2, height * 2]]);
 
 let triangles = voronoi.triangles(points);
 
-/********DRAW TRIANGLES********/
+/***************************************************************************************************************/
+
+/*  DRAW TRIANGLES  */
+
 const canvas = d3.select('body').append('canvas').attr('width', width).attr('height', height);
 const context = canvas.node().getContext('2d');
 
@@ -44,13 +50,25 @@ const timer = d3.interval(function (elapsed) {
     drawTriangles();
 }, 40)
 
-/********HELPER FUNCTIONS********/
+/***************************************************************************************************************/
+
+/*  HELPER FUNCTIONS  */
 
 //Generates a color based on a position.
-function color(d, position) {
-    const dx = d[0] - position[0],
-        dy = d[1] - position[1];
-    return d3.lab(100 - (dx * dx + dy * dy) / 4000, dx / 5, dy / 5);
+function wheelColor(point, center) {
+    const dx = point[0] - center[0],
+        dy = point[1] - center[1];
+    return d3.lab(100 - (dx * dx + dy * dy) / 9000, dx / 5, dy / 5);
+}
+
+function apteColor(point, center) {
+
+    const apteRed = d3.rgb(157, 29, 33);
+    const apteBlue = d3.rgb(167, 191, 209);
+    const colorIntepolator = d3.interpolateCubehelix(apteRed, apteBlue);
+    let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
+    color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, center) / (diagonal/2)*4;
+    return color;
 }
 
 //Calculates the centroid of a triangle.
@@ -61,18 +79,14 @@ function triangleCentroid(triangle) {
 //Applies the force on a spring from force field at source.
 function applyForceFromSource(spring, source, maxStrength, radius = 10) {
     const dist = distance(spring.position, source);
-    const force = radius*maxStrength / (radius + dist);
-    console.log(force);
+    const force = radius * maxStrength / (radius + dist);
     //Similar triangles
     const fx = (spring.position[0] - source[0]) * force / dist;
     const fy = (spring.position[1] - source[1]) * force / dist;
     spring.applyForce([fx, fy]);
 }
 
-//Sends a "wave" of force across the screen.  
-function sendWave(){
-    
-}
+
 
 //Calculates Euclidiean distance between two points.
 function distance(a, b) {
@@ -82,7 +96,7 @@ function distance(a, b) {
 //Draw pointSprings on canvas
 function drawPointSprings() {
     context.clearRect(0, 0, width, height);
- 
+
     pointSprings.forEach((spring) => {
         context.beginPath();
         context.ellipse(spring.position[0], spring.position[1], 2, 2, 0, 0, Math.PI * 2);
@@ -95,15 +109,18 @@ function drawPointSprings() {
 //Draws the triangles on the canvas.
 function drawTriangles() {
     context.clearRect(0, 0, width, height);
-    context.fillStyle = 'black';
-    context.fillRect(0,0, width, height)
+    context.fillStyle = "#555";
+    context.fillRect(0, 0, width, height)
     triangles.forEach((triangle) => {
         context.beginPath();
         context.moveTo(triangle[2][0], triangle[2][1]);
         triangle.forEach((vertex) => context.lineTo(vertex[0], vertex[1]));
-        var col = color(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]).toString();
-        context.fillStyle = col;
-        context.strokeStyle = col;
+        var col = apteColor(triangleCentroid(triangle), [mousePosition[0], mousePosition[1]]);
+        context.strokeStyle = col.toString();
+        col.opacity = .95;
+        context.fillStyle = col.toString();
+
+        context.fill();
         context.stroke();
         context.closePath();
     });

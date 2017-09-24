@@ -25,12 +25,13 @@ gulp.task('dist', function(){
     return gulp.src(['vendor/**/*.js', 'build/all.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('dist'))
-//        .pipe(rename('all.min.js'))
-//        .pipe(uglify())
-//        .pipe(gulp.dest('dist'))
+        .pipe(rename('all.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('dist'))
 })
 
 gulp.task('watch', function(){
+    runSequence('build', 'buildAll', 'dist');
     gulp.watch('src/**/*.js', function(){
         runSequence('build', 'buildAll', 'dist');
     });

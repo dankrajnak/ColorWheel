@@ -11,7 +11,7 @@ class Spring {
         this.k = k;
         this.damping = damping;
     }
-
+    
     applyForce(force) {
         this._appliedForce = force;
     }
