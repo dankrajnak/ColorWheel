@@ -8,6 +8,7 @@ var mousePosition = [width / 2, height / 2];
 
 //Resize logo
 d3.select('svg').attr('width', width / 3);
+/*-------------------------------------------------------------------------------*/
 
 /*  CREATE TRIANGLES AND SPRINGS  */
 var pointGenerator = new PoissonDisk(width, height, radius);
@@ -24,7 +25,7 @@ var voronoi = d3.voronoi().extent([[-width, -height], [width * 2, height * 2]]);
 
 var triangles = voronoi.triangles(points);
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 /*  DRAW TRIANGLES  */
 var container = d3.select('#container');
@@ -65,7 +66,7 @@ d3.interval(function (elapsed) {
     drawTriangles(colorProfile);
 }, 40);
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 /*  HELPER FUNCTIONS  */
 

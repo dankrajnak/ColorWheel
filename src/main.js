@@ -6,6 +6,7 @@ let mousePosition = [width / 2, height / 2];
 
 //Resize logo
 d3.select('svg').attr('width', width / 3);
+/*-------------------------------------------------------------------------------*/
 
 /*  CREATE TRIANGLES AND SPRINGS  */
 const pointGenerator = new PoissonDisk(width, height, radius);
@@ -21,7 +22,7 @@ const voronoi = d3.voronoi()
 
 let triangles = voronoi.triangles(points);
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 /*  DRAW TRIANGLES  */
 const container = d3.select('#container')
@@ -62,7 +63,7 @@ d3.interval(function (elapsed) {
     drawTriangles(colorProfile);
 }, 40)
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 
 /*  HELPER FUNCTIONS  */
@@ -127,8 +128,6 @@ function applyForceFromSource(spring, source, maxStrength, radius = 10) {
     const fy = (spring.position[1] - source[1]) * force / dist;
     spring.applyForce([fx, fy]);
 }
-
-
 
 //Calculates Euclidiean distance between two points.
 function distance(a, b) {

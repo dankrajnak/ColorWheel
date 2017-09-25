@@ -11,12 +11,12 @@ class Spring {
         this.k = k;
         this.damping = damping;
     }
-    
+
     applyForce(force) {
         this._appliedForce = force;
     }
 
-    update() {
+    update(printInfo = false) {
         let springForce = [];
         springForce[0] = -this.k * (this.position[0] - this.base[0]);
         springForce[1] = -this.k * (this.position[1] - this.base[1]);
@@ -34,14 +34,15 @@ class Spring {
         this.position[0] += this._velocity[0] + .5 * force[0] / this.mass;
         this.position[1] += this._velocity[1] + .5 * force[1] / this.mass;
 
-//        const tableInfo = {
-//            previousAccelleration: this._previousAcceleration,
-//            springForce: this._springForce,
-//            force: force,
-//            velocity: this._velocity,
-//            positionVector: [this.position[0] - this.base[0], this.position[1] - this.base[1]]
-//        }
-//
-//        console.table(tableInfo);
+        if (printInfo) {
+            const tableInfo = {
+                previousAccelleration: this._previousAcceleration,
+                springForce: this._springForce,
+                force: force,
+                velocity: this._velocity,
+                positionVector: [this.position[0] - this.base[0], this.position[1] - this.base[1]]
+            }
+            console.table(tableInfo);
+        }
     }
 }

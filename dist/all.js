@@ -117,6 +117,8 @@ var Spring = function () {
     }, {
         key: 'update',
         value: function update() {
+            var printInfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
             var springForce = [];
             springForce[0] = -this.k * (this.position[0] - this.base[0]);
             springForce[1] = -this.k * (this.position[1] - this.base[1]);
@@ -133,15 +135,16 @@ var Spring = function () {
             this.position[0] += this._velocity[0] + .5 * force[0] / this.mass;
             this.position[1] += this._velocity[1] + .5 * force[1] / this.mass;
 
-            //        const tableInfo = {
-            //            previousAccelleration: this._previousAcceleration,
-            //            springForce: this._springForce,
-            //            force: force,
-            //            velocity: this._velocity,
-            //            positionVector: [this.position[0] - this.base[0], this.position[1] - this.base[1]]
-            //        }
-            //
-            //        console.table(tableInfo);
+            if (printInfo) {
+                var tableInfo = {
+                    previousAccelleration: this._previousAcceleration,
+                    springForce: this._springForce,
+                    force: force,
+                    velocity: this._velocity,
+                    positionVector: [this.position[0] - this.base[0], this.position[1] - this.base[1]]
+                };
+                console.table(tableInfo);
+            }
         }
     }]);
 
@@ -156,6 +159,7 @@ var mousePosition = [width / 2, height / 2];
 
 //Resize logo
 d3.select('svg').attr('width', width / 3);
+/*-------------------------------------------------------------------------------*/
 
 /*  CREATE TRIANGLES AND SPRINGS  */
 var pointGenerator = new PoissonDisk(width, height, radius);
@@ -172,7 +176,7 @@ var voronoi = d3.voronoi().extent([[-width, -height], [width * 2, height * 2]]);
 
 var triangles = voronoi.triangles(points);
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 /*  DRAW TRIANGLES  */
 var container = d3.select('#container');
@@ -213,7 +217,7 @@ d3.interval(function (elapsed) {
     drawTriangles(colorProfile);
 }, 40);
 
-/***************************************************************************************************************/
+/*-------------------------------------------------------------------------------*/
 
 /*  HELPER FUNCTIONS  */
 
