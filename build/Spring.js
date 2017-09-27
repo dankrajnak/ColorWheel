@@ -4,6 +4,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+//author: Daniel Krajnak
 var Spring = function () {
     //Creates a spring based on Hooke's Law.
     function Spring(base) {

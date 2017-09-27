@@ -1,3 +1,4 @@
+//author: Daniel Krajnak
 class Spring {
     //Creates a spring based on Hooke's Law.
     constructor(base, mass = 4, k = 2, damping = .7) {

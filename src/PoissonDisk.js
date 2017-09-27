@@ -1,3 +1,4 @@
+//author: Daniel Krajnak
 class PoissonDisk {
     constructor(width, height, radius) {
         this.width = width;

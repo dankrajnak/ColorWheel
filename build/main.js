@@ -44,7 +44,9 @@ container.on('click', function () {
     }
 });
 
-container.on('mousemove', function () {
+container.on('mousemove', onMove).on('touchmove', onMove);
+
+function onMove() {
     mousePosition = d3.mouse(this);
     points.length = 0;
     pointSprings.forEach(function (spring) {
@@ -54,7 +56,7 @@ container.on('mousemove', function () {
     });
     triangles = voronoi.triangles(points);
     drawTriangles(colorProfile);
-});
+}
 
 d3.interval(function (elapsed) {
     points.length = 0;

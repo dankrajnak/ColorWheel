@@ -7,6 +7,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+//author: Daniel Krajnak
 var PoissonDisk = function () {
     function PoissonDisk(width, height, radius) {
         _classCallCheck(this, PoissonDisk);
@@ -88,6 +89,9 @@ var PoissonDisk = function () {
 
     return PoissonDisk;
 }();
+
+//author: Daniel Krajnak
+
 
 var Spring = function () {
     //Creates a spring based on Hooke's Law.
@@ -195,7 +199,9 @@ container.on('click', function () {
     }
 });
 
-container.on('mousemove', function () {
+container.on('mousemove', onMove).on('touchmove', onMove);
+
+function onMove() {
     mousePosition = d3.mouse(this);
     points.length = 0;
     pointSprings.forEach(function (spring) {
@@ -205,7 +211,7 @@ container.on('mousemove', function () {
     });
     triangles = voronoi.triangles(points);
     drawTriangles(colorProfile);
-});
+}
 
 d3.interval(function (elapsed) {
     points.length = 0;
