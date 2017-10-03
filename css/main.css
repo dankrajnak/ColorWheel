@@ -8,11 +8,13 @@ body {
     position: fixed;
     width: 100%;
     height: 100%;
+    cursor: none;
 }
 
 canvas {
     position: fixed;
     z-index: -1;
+    cursor: none;
 }
 
 svg {
