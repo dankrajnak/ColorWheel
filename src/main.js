@@ -1,4 +1,46 @@
-const width = window.innerWidth,
+/*--------*/
+document.addEventListener('keydown', (event) => {
+    if(event.keyCode == 32)
+        toggleFullScreen(document.getElementById('fullscreen'));
+})
+
+function toggleFullScreen(element) {
+    if (!document.mozFullScreen && !document.webkitFullScreen) {
+      if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else {
+        element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+      }
+    } else {
+      if (element.mozCancelFullScreen) {
+        element.mozCancelFullScreen();
+      } else {
+        element.webkitCancelFullScreen();
+      }
+    }
+    resize();
+}
+
+function resize(){
+    //width = document.width;
+    //height = document.height;
+    height = window.screen.height;
+    canvas.attr('width', width).attr('height', height);
+    pointGenerator = new PoissonDisk(width, height, radius);
+    points = pointGenerator.generatePoints();
+
+    pointSprings.length = 0;
+    points.forEach((point) => pointSprings.push(new Spring(point, mass * (1 + Math.random()), k + (1 + Math.random()), Math.random() * .3 + .5)));
+
+    voronoi = d3.voronoi()
+        .extent([[-width, -height], [width * 2, height * 2]]);
+    triangles = voronoi.triangles(points);
+
+}
+/*----*/
+
+
+let width = window.innerWidth,
     height = window.innerHeight,
     radius = 30;
 const diagonal = distance([0, 0], [width, height]);
@@ -9,30 +51,32 @@ d3.select('svg').attr('width', width / 3);
 /*-------------------------------------------------------------------------------*/
 
 /*  CREATE TRIANGLES AND SPRINGS  */
-const pointGenerator = new PoissonDisk(width, height, radius);
-const points = pointGenerator.generatePoints();
+let pointGenerator = new PoissonDisk(width, height, radius);
+let points = pointGenerator.generatePoints();
 
 const mass = 4;
 const k = 2;
 let pointSprings = [];
 points.forEach((point) => pointSprings.push(new Spring(point, mass * (1 + Math.random()), k + (1 + Math.random()), Math.random() * .3 + .5)));
 
-const voronoi = d3.voronoi()
+let voronoi = d3.voronoi()
     .extent([[-width, -height], [width * 2, height * 2]]);
 
 let triangles = voronoi.triangles(points);
+//let links = voronoi(points).links;
 
 /*-------------------------------------------------------------------------------*/
 
 /*  DRAW TRIANGLES  */
-const container = d3.select('#container')
-const canvas = d3.select('body').append('canvas').attr('width', width).attr('height', height);
+const container = document.getElementById('container');  //d3.select('#container')
+const canvas = d3.select('#fullscreen').append('canvas').attr('width', width).attr('height', height);
 const context = canvas.node().getContext('2d');
 
 let colorProfile = apteColorWhite;
 
-container.on('click', () => {
+container.addEventListener('click', () => {
     if (colorProfile == apteColorBlack) {
+        resize();
         d3.selectAll('svg path, svg polygon').style('fill', 'black').style('stroke', 'none');
         colorProfile = apteColorWhite
     } else {
@@ -41,13 +85,24 @@ container.on('click', () => {
     }
 })
 
-container.on('mousemove', onMove).on('touchmove', onMove);
+let wanderer = new Wanderer(width, height);
+wanderer.startWandering((pos) => move(pos), 2000, 6000);
 
-function onMove(){
-    mousePosition = d3.mouse(this);
+// container.addEventListener('mouseover', event=> wanderer.stopWandering(true));
+// container.addEventListener('mousemove', event => move([event.offsetX, event.offsetY]));
+// container.addEventListener('mouseout', event => wanderer.startWandering(pos=>move(pos), 3000, 500, [event.offsetX, event.offsetY]))
+
+// container.on('mousemove', function(){
+//     move(d3.mouse(this));
+// }).on('touchmove', function(){
+//     move(d3.mouse(this));
+// });
+
+function move(pos){
+    mousePosition = pos;
     points.length = 0;
     pointSprings.forEach((spring) => {
-        applyForceFromSource(spring, mousePosition, 300, 100);
+        applyForceFromSource(spring, pos, 300, 100);
         spring.update();
         points.push(spring.position);
     });
@@ -88,7 +143,7 @@ function apteColorBlack(point, center) {
     //Finds the color of a point within the color gradient and converts it to hsl.
     let color = d3.hsl(colorIntepolator(distance(point, [width / 2, height / 2]) / (diagonal / 2)));
 
-    /*Color gets lighter the closer it is to the 'center'  This is a little complicated just to help the circle 
+    /*Color gets lighter the closer it is to the 'center'  This is a little complicated just to help the circle
     be a more uniform size with the lighter color being towards the edges of the canvas.  It could approximated
     by -distance(point, center)/ (diagonal / 2) * 2.  */
     color.l += d3.easeCircleOut(distance(point, center) / diagonal) - distance(point, center) / (diagonal / 2) * 4;
@@ -152,7 +207,7 @@ function drawPointSprings() {
 //Draws the triangles on the canvas.
 function drawTriangles(colorProfile) {
     context.clearRect(0, 0, width, height);
-    context.fillStyle = "#555";
+    context.fillStyle = "#000";
     context.fillRect(0, 0, width, height)
     triangles.forEach((triangle) => {
         context.beginPath();
